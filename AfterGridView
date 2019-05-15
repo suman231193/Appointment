@@ -1,0 +1,396 @@
+<html><head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="ClientGlobalContext.js.aspx" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js">
+  </script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css"> 
+
+  
+<meta><meta><meta><meta><meta><meta><meta><meta><meta><meta><meta><meta><meta><meta><meta></head>
+<body class="vsc-initialized" style="overflow-wrap: break-word;" onload="GetSpecialty()">
+
+<div class="container" style="font-family: undefined;">
+<br>
+<br>
+          
+		  <form>
+			<div>
+				<div class="form-group">
+					<select id="dd1" name="dd1" class="form-control" onmousedown="this.value='';" onchange="jsFunction(this.value);">
+					<option value="" disabled="" selected="" hidden="">Speciality</option>
+
+				</select>
+                </div><br>
+				<div class="form-group">
+					<select id="dd2" name="dd2" class="form-control">
+					  <option value="" disabled="" selected="" hidden="">Sub Speciality</option>
+					</select>
+				</div><br>
+				<div class="form-group">
+				<select id="dd3" name="dd3" class="form-control">
+                <option value="" disabled="" selected="" hidden="">Location</option>
+
+				</select>
+				</div>
+				<br>
+				<div class="form-group">
+					<label>Date For Appointment</label>
+					<input id="appDate" class="form-control">
+				</div>
+				
+					<button type="button" class="btn btn-primary" onclick="SearchAppointment()">Search</button>
+				
+			</div>
+			
+         </form> 
+		 <div id="doclist" style="display:none;border:1px;">
+         	
+			<div class="container">
+			            
+			  <table class="table" id="DocTable">
+				<thead>
+					<tr>
+						<th>
+						
+						 Doctor
+				
+						</th>
+						<th colspan="6">
+						
+						 
+						  Available Times
+						
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+				
+				</tbody>  
+			  </table>
+			  
+			</div>
+			<div class="form-group">
+				<button type="button" class="btn btn-primary" onclick="bookAppointment()">Book Appointment</button>
+			</div>
+         </div>
+		  
+        
+  
+</div>
+
+
+		<script>
+		
+				function GetSpecialty()
+				{
+					var date = new Date();
+					date.setDate(date.getDate()+1);
+					jQuery('#appDate').datepicker
+					({
+						 daysOfWeekDisabled: [0,6],
+						 startDate : date
+					});  
+					var oDataUri = "https://skp2311.crm.dynamics.com/api/data/v9.0/my_specialties?$select=my_name,my_specialtyid";
+					console.log(oDataUri);
+					var filterData = jquerycall(oDataUri);
+					console.log(filterData+"outside if");
+					//console.log(filterData);
+					if (filterData != null && filterData[0].length > 0)
+					{
+						console.log("inside if");
+						
+						console.log("suman");
+						console.log(filterData.length);
+						
+						for (var count = 0; count < filterData[0].length; count++) 
+						{
+							
+							var option1 = document.createElement("option");
+							option1.text = filterData[0][count].my_name;
+							option1.value = filterData[0][count].my_specialtyid;
+							document.getElementById("dd1").append(option1);
+							//console.log(AvailabelDoctors[0][j]);							
+					
+						}
+						//console.log("suitableDoctors"+SuitableDoctors[0]);
+					}
+					var oDataUri = "https://skp2311.crm.dynamics.com/api/data/v9.0/my_locations?$select=my_name,my_locationid";
+					console.log(oDataUri);
+					var filterData = jquerycall(oDataUri);
+					console.log(filterData+"outside if");
+					//console.log(filterData);
+					if (filterData != null && filterData[0].length > 0)
+					{
+						console.log("inside if");
+						
+						console.log("suman");
+						console.log(filterData.length);
+						
+						for (var count = 0; count < filterData[0].length; count++) 
+						{
+							
+							var option1 = document.createElement("option");
+							option1.text = filterData[0][count].my_name;
+							option1.value = filterData[0][count].my_locationid;
+							document.getElementById("dd3").append(option1);
+							//console.log(AvailabelDoctors[0][j]);							
+					
+						}
+						//console.log("suitableDoctors"+SuitableDoctors[0]);
+					}
+
+				}
+				function bookAppointment() {
+					
+					var url = window.location.href.substring(window.location.href.indexOf("Data=")+6).replace("}", "");
+					
+					console.log(url);
+					
+					//var e = document.getElementById("dd4"); 
+					var doctor = document.querySelector('input[name="optradio"]:checked').id; 
+					console.log(doctor);
+					//doctor = parseInt(document.querySelector('input[name="optradio"]:checked').id); 
+					//console.log(doctor);
+					var docName = document.querySelector('input[name="optradio"]:checked').dataset.docName
+					var docFee = parseFloat(document.querySelector('input[name="optradio"]:checked').dataset.fee);
+					//e = document.getElementById("dd5"); 
+					var timeslot = document.querySelector('input[name="optradio"]:checked').value;
+					var tim = timeslot.split("-");
+					e = document.getElementById("appDate"); 
+					
+					var startdate = new Date(e.value+' '+ tim[0] + ':00:00');
+					var enddate = new Date(e.value +' '+ tim[1] + ':00:00');
+					console.log(e.text+' '+ tim[0] + ':00:00');
+					console.log(e.text +' '+ tim[1] + ':00:00');
+					console.log("startDate : " + startdate);
+					console.log("endDate : " + enddate);
+					
+					
+					
+					
+					var data = { 
+						 "Subject": "Create an appointment",
+						 "Fee" : docFee,
+						 "StartDateTime" : startdate,
+						 "EndDateTime" : enddate,
+						"Doctor":
+									{
+										  "@odata.type": "Microsoft.Dynamics.CRM.my_doctorsluist",//entity type
+										  "my_doctorsluistid": doctor,//Record's guid
+										  "my_name": docName//name field of the account entity
+									}
+						
+					};
+					var query = "opportunities("+url+")/Microsoft.Dynamics.CRM.new_AppointmentAct"; 
+					var req = new XMLHttpRequest(); 
+					req.open("POST", "https://skp2311.crm.dynamics.com/api/data/v9.0/" + query, true); 
+					req.setRequestHeader("Accept", "application/json"); 
+					req.setRequestHeader("Content-Type", "application/json; charset=utf-8"); 
+					req.setRequestHeader("OData-MaxVersion", "4.0"); 
+					req.setRequestHeader("OData-Version", "4.0"); 
+					req.onreadystatechange = function () { 
+						if (this.readyState == 4) {
+							req.onreadystatechange = null; 
+							if (this.status == 200) { 
+								alert("Action called successfully");
+							} else { 
+								var error = JSON.parse(this.response).error; 
+								alert(error.message); 
+							} 
+						} 
+					};
+					req.send(window.JSON.stringify(data));
+				}
+
+        
+				function SearchAppointment()
+				{
+					var e = document.getElementById("dd1"); 
+					var spec_value = e.options[e.selectedIndex].value; 
+					e = document.getElementById("dd2");
+					var subspec_value = e.options[e.selectedIndex].value; 
+					e = document.getElementById("dd3");
+					var location = e.options[e.selectedIndex].value; 
+					e = document.getElementById("appDate");
+					var appdate = e.value;
+					var SuitableDoctors = [];
+					var DoctorsOnLeave = [];
+					var AvailabelDoctors= [];
+					var request = new XMLHttpRequest(); 
+					
+					var oDataUri = "https://skp2311.crm.dynamics.com/api/data/v9.0/my_doctorsluists?$select=my_name,my_doctorsluistid,my_fee&$filter=_my_subspecialty_value eq '"+subspec_value+"' and _my_specialty_value eq '"+spec_value+"' and _my_location_value eq '"+location+"'";
+					console.log(oDataUri);
+					var filterData = jquerycall(oDataUri);
+					
+					
+					
+					
+					//alert(filterData+"outside if");
+					console.log(filterData);
+						if (filterData != null && filterData[0].length > 0)
+						{
+							//alert("inside if");
+							
+							console.log("suman");
+							console.log(filterData.length);
+							
+							for (var count = 0; count < filterData[0].length; count++) 
+							{
+								
+								//console.log(filterData[0][count]);
+								//console.log(filterData[0][count].my_name);
+								SuitableDoctors.push({name: filterData[0][count].my_name, doctorId: filterData[0][count].my_doctorsluistid, fee: filterData[0][count].my_fee});
+								
+							}
+							console.log("suitableDoctors"+SuitableDoctors[0]);
+						}
+						oDataUri ="https://skp2311.crm.dynamics.com/api/data/v9.0/my_doctorholidaylists?$select=_my_doctorname_value&$filter=my_holidaystartdate lt '"+appdate+"' and my_holidayendtime gt '"+appdate+"'"
+						filterData = jquerycall(oDataUri);
+						if (filterData != null && filterData[0].length > 0)
+						{
+							//alert("inside if");
+							
+							//console.log("suman");
+							//console.log(filterData.length);
+							
+							for (var count = 0; count < filterData[0].length; count++) 
+							{
+								
+								console.log(filterData[0][count]);
+								
+								DoctorsOnLeave.push(filterData[0][count]._my_doctorname_value);
+								
+							}
+							console.log("DoctorsOnLeave"+ DoctorsOnLeave);
+						}
+						for( var i=0; i<SuitableDoctors.length;i++)
+						{
+							if(!contains(AvailabelDoctors,SuitableDoctors[i].doctorId))
+							{
+								AvailabelDoctors.push({Docname : SuitableDoctors[i].name,DocID : SuitableDoctors[i].doctorId,fee : SuitableDoctors[i].fee});
+								console.log(SuitableDoctors[i].name);
+							}
+							
+						}
+						function contains(arr, element) 
+						{ 
+							for (var i = 0; i < arr.length; i++)
+							{ 
+								if (arr[i] === element) 
+								{ 
+									return true; 
+								} 
+							} 
+							return false; 
+						} 
+						document.getElementById('doclist').style.display = "block";
+						for(var j=0;j<AvailabelDoctors.length;j++)
+						{
+							var table = document.getElementById("DocTable");
+							var row = table.insertRow(j+1);
+							
+							var cell1 = row.insertCell(0);
+							
+							cell1.innerHTML = AvailabelDoctors[j].Docname;
+							oDataUri ="https://skp2311.crm.dynamics.com/api/data/v9.0/my_timeslots?$select=my_availabletime&$filter=_my_doctor_value eq '"+AvailabelDoctors[j].DocID+"'"
+							filterData = jquerycall(oDataUri);
+							for(var k=0;k<filterData[0].length;k++)
+							{
+								var cell2 = row.insertCell(k+1);
+								//cell1.innerHTML = filterData[0][j].my_availabletime;
+								var div = document.createElement('div');
+
+								div.className = 'row';
+
+								div.innerHTML =
+									'<div class="radio"><label><input type="radio" data-docName="'+AvailabelDoctors[j].Docname+'" data-fee='+AvailabelDoctors[j].fee+' name="optradio" id="'+AvailabelDoctors[j].DocID+'" value="'+filterData[0][k].my_availabletime+'">'+filterData[0][k].my_availabletime+'</label></div>';
+
+								cell2.appendChild(div);
+							}
+							
+							
+						}
+						
+				}
+				
+			function jsFunction(value)
+			{
+		
+					var oDataUri = "https://skp2311.crm.dynamics.com/api/data/v9.0/my_subspecialties?$select=my_name,my_subspecialtyid&$filter=_my_specialty_value eq '"+value+"'";
+					console.log(oDataUri);
+					var filterData = jquerycall(oDataUri);
+					console.log(filterData+"outside if");
+					document.getElementById("dd2").options.length=0;
+					
+					var option0 = document.createElement("option");
+					option0.text = "Sub Speciality";
+					option0.value = "null";
+					option0.hidden=true;
+					option0.selected = "selected";
+					option0.disabled = true;
+							
+					//document.getElementById("dd4").append(option0);
+					//console.log(filterData);
+						if (filterData != null && filterData[0].length > 0)
+						{
+							console.log("inside if");
+							
+							console.log("suman");
+							console.log(filterData.length);
+							
+							for (var count = 0; count < filterData[0].length; count++) 
+							{
+								
+								var option1 = document.createElement("option");
+
+								option1.text = filterData[0][count].my_name;
+								option1.value = filterData[0][count].my_subspecialtyid;
+								document.getElementById("dd2").append(option1);
+								//console.log(AvailabelDoctors[0][j]);							
+						
+							}
+							//console.log("suitableDoctors"+SuitableDoctors[0]);
+						}
+
+			} 
+			
+			function jquerycall(oDataUri)
+					{
+						var jSonArray = new Array();
+						jQuery.ajax
+						({
+							type: "GET",
+							contentType: "application/json; charset=utf-8",
+							datatype: "json",
+							url: oDataUri,
+							async: false,
+							beforeSend: function (XMLHttpRequest) {
+								//Specifying this header ensures that the results will be returned as JSON.            
+								XMLHttpRequest.setRequestHeader("Accept", "application/json");
+							},
+							success: function (data, textStatus, XmlHttpRequest) {
+							//alert("Success");
+							//alert(data);
+							console.log(data);
+							console.log(data.value);
+								if (data != null && data.value != null) {
+									jSonArray.push(data.value);
+								}
+							},
+							error: function (XmlHttpRequest, textStatus, errorThrown) {
+								//alert("Error :  has occured during retrieval of the contacts");
+							}
+						});
+						return jSonArray;
+					}
+        
+         </script>
+
+
+</body></html>
